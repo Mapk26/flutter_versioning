@@ -14,8 +14,8 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: Versioning(
-        projectId: 'fir-text-recognition-4f944',
-        projectName: 'flutter',
+        projectId: '<your project id>',
+        projectName: '<your app name>',
         child: MyHomePage(title: 'Flutter Demo Versioning'),
       ),
     );
