@@ -7,12 +7,21 @@ class Api{
 
   static Future<VersionModel> getVersion({@required String projectId, @required String projectName}) async {
     Response response;
-    Dio dio = new Dio();
+
+    // or new Dio with a BaseOptions instance.
+    BaseOptions options = new BaseOptions(
+      connectTimeout: 5000,
+      receiveTimeout: 3000,
+    );
+    Dio dio = new Dio(options);
 
     String platform = Platform.isAndroid ? 'android' : 'ios';
 
     try{
-      response = await dio.get("https://$projectId.firebaseio.com/$projectName/$platform.json");
+      response = await dio.get(
+        "https://$projectId.firebaseio.com/$projectName/$platform.json",
+        //options: Options(connectTimeout: 5000,)
+      );
 
       if(response.statusCode==200){
         print(response.data.toString());
