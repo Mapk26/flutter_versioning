@@ -16,6 +16,7 @@ class MyApp extends StatelessWidget {
       home: Versioning(
         projectId: '<your project id>',
         projectName: '<your app name>',
+        options: VersioningOptions(),
         child: MyHomePage(title: 'Flutter Demo Versioning'),
       ),
     );

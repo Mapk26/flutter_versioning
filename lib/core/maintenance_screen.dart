@@ -1,12 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:launch_review/launch_review.dart';
+import 'package:versioning/core/base_options.dart';
 
 class Maintenance extends StatelessWidget {
 
   final bool forceUpgrade;
   final String appName;
+  final VersioningOptions options;
+  final String updateText, maintenanceText;
 
-  Maintenance({this.appName, this.forceUpgrade=false});
+  Maintenance({
+    this.appName,
+    this.forceUpgrade=false,
+    this.options,
+    this.maintenanceText='',
+    this.updateText='',
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -15,41 +24,61 @@ class Maintenance extends StatelessWidget {
         ? 'A new version of ${appName.isNotEmpty ? appName : 'this app'} is available.\nPlease update now.'
         : 'We\'re currently offline...\nwe\'ll be back ASAP!';
 
+    Text textBox = Text(
+      forceUpgrade && updateText.isNotEmpty
+          ? updateText
+          : !forceUpgrade && maintenanceText.isNotEmpty
+            ? maintenanceText
+            : message,
+      textAlign: TextAlign.center,
+      style: options.textStyle!=null
+          ? options.textStyle
+          : TextStyle(fontSize: 16.0, color: Colors.white,),
+    );
+
+    Icon defaultIcon = Icon(
+      forceUpgrade
+          ? Icons.category
+          : Icons.access_time,
+      size: 90.0,
+      color: Colors.white,
+    );
+
+    Icon icon = defaultIcon;
+    if(forceUpgrade && options.iconUpdate!=null){
+      icon = options.iconUpdate;
+    }else if(!forceUpgrade && options.iconMaintenance!=null){
+      icon = options.iconMaintenance;
+    }
+
+
     return Scaffold(
 
       body: Center(
         child: Container(
           width: double.infinity,
-          color: Colors.blueAccent,
+          color: options.backgroundColor,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
 
-              Icon(
-                forceUpgrade ? Icons.category : Icons.access_time,
-                size: 80.0,
-                color: Colors.white,
-              ),
+              icon,
 
               SizedBox(height: 10.0,),
 
               SizedBox(
                 width: MediaQuery.of(context).size.width-80.0,
-                child: Text(
-                  message,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 16.0, color: Colors.white,),
-                ),
+                child: textBox,
               ),
 
               forceUpgrade ? Padding(
                 padding: const EdgeInsets.only(top: 8.0),
                 child: FlatButton(
-                  color: Colors.white.withOpacity(0.8),
-                  child: const Text(
-                    'Update',
-                    semanticsLabel: 'Update',
-                    style: TextStyle(color: Colors.blueAccent, fontSize: 16.0,),
+                  color: options.buttonColor!=null ? options.buttonColor : Colors.white.withOpacity(0.8),
+                  child: Text(
+                    options.buttonText!=null ? options.buttonText : 'Update',
+                    semanticsLabel: options.buttonText!=null ? options.buttonText : 'Update',
+                    style: options.buttonTextStyle!=null ? options.buttonTextStyle : TextStyle(color: Colors.blueAccent, fontSize: 16.0,),
                   ),
                   onPressed: () {
                     LaunchReview.launch();

@@ -9,13 +9,15 @@ class VersionModel {
   int buildNumber;
   int lastBreakingChange;
   bool maintenanceMode;
-  String platform;
+  String platform, maintenanceText, updateText;
 
   VersionModel({
     this.buildNumber,
     this.lastBreakingChange,
     this.maintenanceMode,
     this.platform,
+    this.maintenanceText,
+    this.updateText,
   });
 
   factory VersionModel.fromJson(String str) => VersionModel.fromMap(json.decode(str));
@@ -25,8 +27,10 @@ class VersionModel {
   factory VersionModel.fromMap(Map<String, dynamic> json) => VersionModel(
     buildNumber: json["buildNumber"],
     lastBreakingChange: json["lastBreakingChange"],
-    maintenanceMode: json["maintenanceMode"],
+    maintenanceMode: json["maintenanceMode"] ?? false,
     platform: json["platform"],
+    maintenanceText: json["maintenanceText"] ?? '',
+    updateText: json["updateText"] ?? '',
   );
 
   Map<String, dynamic> toMap() => {

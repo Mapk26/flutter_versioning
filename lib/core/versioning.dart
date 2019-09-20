@@ -4,6 +4,7 @@ import 'package:after_layout/after_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:launch_review/launch_review.dart';
 import 'package:versioning/core/api_provider.dart';
+import 'package:versioning/core/base_options.dart';
 import 'package:versioning/core/maintenance_screen.dart';
 import 'package:versioning/models/version_model.dart';
 import 'package:package_info/package_info.dart';
@@ -22,8 +23,10 @@ class Versioning extends StatefulWidget {
   final key;
   final String projectId;
   final String projectName;
+  final VersioningOptions options;
 
   Versioning({
+    @required this.options,
     @required this.child,
     this.key,
     @required this.projectName,
@@ -39,6 +42,7 @@ class _VersioningState extends State<Versioning>
 
   Future<versionStatus> _futureStatus;
   String appName = '';
+  VersionModel version;
 
   Future<versionStatus> _checkVersion() async {
 
@@ -46,7 +50,7 @@ class _VersioningState extends State<Versioning>
     int buildNumber = int.parse(packageInfo.buildNumber);
     appName = packageInfo.appName;
 
-    VersionModel version = await Api.getVersion(
+    version = await Api.getVersion(
       projectName: widget.projectName,
       projectId: widget.projectId,
     );
@@ -140,9 +144,18 @@ class _VersioningState extends State<Versioning>
 
             switch(snapshot.data){
               case versionStatus.maintenance:
-                return Maintenance(appName: appName,);
+                return Maintenance(
+                  appName: appName,
+                  options: widget.options,
+                  maintenanceText: version.maintenanceText ?? '',
+                );
               case versionStatus.mustUpgrade:
-                return Maintenance(appName: appName, forceUpgrade: true);
+                return Maintenance(
+                  appName: appName,
+                  forceUpgrade: true,
+                  options: widget.options,
+                  updateText: version.updateText ?? '',
+                );
               case versionStatus.shouldUpgrade:
               default:
                 return widget.child;
