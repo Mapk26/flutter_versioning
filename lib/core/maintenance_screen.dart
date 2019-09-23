@@ -4,7 +4,7 @@ import 'package:versioning/core/base_options.dart';
 
 class Maintenance extends StatelessWidget {
 
-  final bool forceUpgrade;
+  final bool forceUpgrade, statusUnknown;
   final String appName;
   final VersioningOptions options;
   final String updateText, maintenanceText;
@@ -15,40 +15,55 @@ class Maintenance extends StatelessWidget {
     this.options,
     this.maintenanceText='',
     this.updateText='',
+    this.statusUnknown=false,
   });
 
   @override
   Widget build(BuildContext context) {
 
-    String message = forceUpgrade
-        ? 'A new version of ${appName.isNotEmpty ? appName : 'this app'} is available.\nPlease update now.'
-        : 'We\'re currently offline...\nwe\'ll be back ASAP!';
+    String message;
+    Text textBox;
+    Icon icon, defaultIcon;
 
-    Text textBox = Text(
-      forceUpgrade && updateText.isNotEmpty
-          ? updateText
-          : !forceUpgrade && maintenanceText.isNotEmpty
-            ? maintenanceText
-            : message,
-      textAlign: TextAlign.center,
-      style: options.textStyle!=null
-          ? options.textStyle
-          : TextStyle(fontSize: 16.0, color: Colors.white,),
-    );
+    if(statusUnknown){
 
-    Icon defaultIcon = Icon(
-      forceUpgrade
-          ? Icons.category
-          : Icons.access_time,
-      size: 90.0,
-      color: Colors.white,
-    );
+      textBox = Text('Something has went wrong, please check your connection.');
+      icon = Icon(
+        Icons.signal_cellular_connected_no_internet_4_bar,
+        size: 90.0,
+      );
 
-    Icon icon = defaultIcon;
-    if(forceUpgrade && options.iconUpdate!=null){
-      icon = options.iconUpdate;
-    }else if(!forceUpgrade && options.iconMaintenance!=null){
-      icon = options.iconMaintenance;
+    }else{
+      message = forceUpgrade
+          ? 'A new version of ${appName.isNotEmpty ? appName : 'this app'} is available.\nPlease update now.'
+          : 'We\'re currently offline...\nwe\'ll be back ASAP!';
+
+      textBox = Text(
+        forceUpgrade && updateText.isNotEmpty
+            ? updateText
+            : !forceUpgrade && maintenanceText.isNotEmpty
+              ? maintenanceText
+              : message,
+        textAlign: TextAlign.center,
+        style: options.textStyle!=null
+            ? options.textStyle
+            : TextStyle(fontSize: 16.0, color: Colors.white,),
+      );
+
+      defaultIcon = Icon(
+        forceUpgrade
+            ? Icons.category
+            : Icons.access_time,
+        size: 90.0,
+        color: Colors.white,
+      );
+
+      icon = defaultIcon;
+      if(forceUpgrade && options.iconUpdate!=null){
+        icon = options.iconUpdate;
+      }else if(!forceUpgrade && options.iconMaintenance!=null){
+        icon = options.iconMaintenance;
+      }
     }
 
 

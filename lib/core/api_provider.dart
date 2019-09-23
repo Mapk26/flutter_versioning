@@ -32,8 +32,8 @@ class Api{
       }
 
     }catch(e){
-
-      throw('An error occurred during HTTP fetch data: $e');
+      print('An error occurred during HTTP fetch data: $e',);
+      //throw('An error occurred during HTTP fetch data: $e');
     }
 
     return null;

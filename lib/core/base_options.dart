@@ -6,6 +6,7 @@ class VersioningOptions{
   TextStyle textStyle, buttonTextStyle;
   Icon iconMaintenance, iconUpdate;
   String buttonText;
+  String alertTitle, alertText, alertButtonUpgrade, alertButtonLater;
 
 
   VersioningOptions({
@@ -16,5 +17,9 @@ class VersioningOptions{
     this.iconUpdate,
     this.buttonText,
     this.buttonTextStyle,
+    this.alertTitle = 'New version',
+    this.alertText = 'A new version is available, download it now?',
+    this.alertButtonUpgrade = 'Upgrade',
+    this.alertButtonLater = 'Later',
   });
 }

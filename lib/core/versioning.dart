@@ -15,6 +15,7 @@ enum versionStatus {
   shouldUpgrade,
   mustUpgrade,
   upToDate,
+  unknown,
 }
 
 class Versioning extends StatefulWidget {
@@ -55,6 +56,10 @@ class _VersioningState extends State<Versioning>
       projectId: widget.projectId,
     );
 
+    if(version==null){
+      return versionStatus.unknown;
+    }
+
     if(version.maintenanceMode){
       return versionStatus.maintenance;
     }
@@ -78,22 +83,20 @@ class _VersioningState extends State<Versioning>
       showDialog(
         context: context,
         builder: (context) => new AlertDialog(
-          title: const Text('New version'),
-          content: const Text('A new version is available on the store. '
-              'Do you want to update it now?'),
+          title: Text(widget.options.alertTitle),
+          content: Text(widget.options.alertText),
           actions: <Widget>[
             new FlatButton(
-              child: new Text('Update'),
+              child: new Text(widget.options.alertButtonLater),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            new FlatButton(
+              child: new Text(widget.options.alertButtonUpgrade),
               onPressed: () {
                 LaunchReview.launch();
                 Navigator.of(context).pop();
               },
             ),
-
-            new FlatButton(
-              child: new Text('Later'),
-              onPressed: () => Navigator.of(context).pop(),
-            )
           ],
         ),
       );
@@ -155,6 +158,12 @@ class _VersioningState extends State<Versioning>
                   forceUpgrade: true,
                   options: widget.options,
                   updateText: version.updateText ?? '',
+                );
+              case versionStatus.unknown:
+                return Maintenance(
+                  appName: appName,
+                  statusUnknown: true,
+                  options: widget.options,
                 );
               case versionStatus.shouldUpgrade:
               default:
