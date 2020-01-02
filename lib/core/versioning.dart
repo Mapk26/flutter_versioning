@@ -8,7 +8,6 @@ import 'package:versioning/core/base_options.dart';
 import 'package:versioning/core/maintenance_screen.dart';
 import 'package:versioning/models/version_model.dart';
 import 'package:package_info/package_info.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 enum versionStatus {
   maintenance,
@@ -21,7 +20,8 @@ enum versionStatus {
 class Versioning extends StatefulWidget {
 
   final Widget child;
-  final key;
+  final Widget loader;
+  final Key key;
   final String projectId;
   final String projectName;
   final VersioningOptions options;
@@ -29,6 +29,7 @@ class Versioning extends StatefulWidget {
   Versioning({
     @required this.options,
     @required this.child,
+    this.loader,
     this.key,
     @required this.projectName,
     @required this.projectId,
@@ -111,7 +112,6 @@ class _VersioningState extends State<Versioning>
     // We will be able to check again
     // when returning to the application
     WidgetsBinding.instance.addObserver(this);
-
   }
 
   @override
@@ -122,7 +122,6 @@ class _VersioningState extends State<Versioning>
 
     _showShouldUpgrade();
   }
-
 
   /// When the application has a resumed status,
   /// check for the permission status again
@@ -174,17 +173,11 @@ class _VersioningState extends State<Versioning>
 
           return Scaffold(
             body: Center(
-              child: SpinKitCubeGrid(
-                color: Colors.blueAccent,
-              ),
+              child: widget.loader==null ? CircularProgressIndicator() : widget.loader,
             ),
           );
         }
 
     );
   }
-
-
-
-
 }
