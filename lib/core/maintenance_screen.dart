@@ -95,9 +95,7 @@ class Maintenance extends StatelessWidget {
                     semanticsLabel: options.buttonText!=null ? options.buttonText : 'Update',
                     style: options.buttonTextStyle!=null ? options.buttonTextStyle : TextStyle(color: Colors.blueAccent, fontSize: 16.0,),
                   ),
-                  onPressed: () {
-                    LaunchReview.launch();
-                  },
+                  onPressed: LaunchReview.launch,
                 ),
               ) : SizedBox(),
 

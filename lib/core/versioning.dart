@@ -1,6 +1,5 @@
 library versioning;
 
-import 'package:after_layout/after_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:launch_review/launch_review.dart';
 import 'package:versioning/core/api_provider.dart';
@@ -40,7 +39,7 @@ class Versioning extends StatefulWidget {
 }
 
 class _VersioningState extends State<Versioning>
-    with WidgetsBindingObserver, AfterLayoutMixin<Versioning>{
+    with WidgetsBindingObserver {
 
   Future<versionStatus> _futureStatus;
   String appName = '';
@@ -115,7 +114,9 @@ class _VersioningState extends State<Versioning>
   }
 
   @override
-  void afterFirstLayout(BuildContext context) {
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
     setState(() {
       _futureStatus = _checkVersion();
     });
