@@ -53,6 +53,11 @@ import 'package:versioning/versioning_package.dart';
       home: Versioning(
         projectId: 'your-firebase-project',
         projectName: 'your-app-name',
+        options: new VersioningOptions(
+          backgroundColor: Colors.blue,
+          iconUpdate: Icon( Icons.update, size: 60, color: Colors.white,),
+          ...
+        ),
         child: MyHomePage(title: 'Flutter Demo'),
       ),
     );
@@ -60,7 +65,8 @@ import 'package:versioning/versioning_package.dart';
 ```
 
 That's it!
-Now Versioning will call the Firebase database you've created and check the current app buil number
+Now Versioning will call the Firebase database you've created and check the current app build number
 against the 'buildNumber' you specified inside the DB.
 Versioning will get the current platform so you can specify different build numbers for Android and iOS.
 
+It fires at the app's start only and triggers again when the lifecycle of the app changes.
