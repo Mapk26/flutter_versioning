@@ -77,6 +77,8 @@ class Maintenance extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
 
+              options.logo!=null ? options.logo : SizedBox(),
+
               icon,
 
               SizedBox(height: 10.0,),

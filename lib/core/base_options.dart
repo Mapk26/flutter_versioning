@@ -7,9 +7,10 @@ class VersioningOptions{
   Icon iconMaintenance, iconUpdate;
   String buttonText;
   String alertTitle, alertText, alertButtonUpgrade, alertButtonLater;
-
+  Widget logo;
 
   VersioningOptions({
+    this.logo,
     this.backgroundColor = Colors.blueAccent,
     this.buttonColor,
     this.textStyle,
