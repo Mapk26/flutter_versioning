@@ -104,6 +104,17 @@ class _VersioningState extends State<Versioning>
 
   }
 
+  String currentVersion, buildNumber = '';
+
+  void initPlatform() async {
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+
+    setState(() {
+      currentVersion = 'Versione ${packageInfo.version}';
+      buildNumber = '(${packageInfo.buildNumber})';
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -111,6 +122,7 @@ class _VersioningState extends State<Versioning>
     // We will be able to check again
     // when returning to the application
     WidgetsBinding.instance.addObserver(this);
+    initPlatform();
   }
 
   @override
@@ -138,6 +150,8 @@ class _VersioningState extends State<Versioning>
 
   @override
   Widget build(BuildContext context) {
+
+    Size size = MediaQuery.of(context).size;
 
     return FutureBuilder(
         future: _futureStatus,
@@ -173,8 +187,34 @@ class _VersioningState extends State<Versioning>
           }
 
           return Scaffold(
-            body: Center(
-              child: widget.loader==null ? CircularProgressIndicator() : widget.loader,
+            backgroundColor: widget.options.backgroundColor,
+            body: Container(
+              width: size.width,
+              height: size.height,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+
+                  Spacer(flex: 2,),
+
+                  widget.options.logo!=null ? widget.options.logo : SizedBox(),
+
+                  widget.loader==null ? CircularProgressIndicator() : widget.loader,
+
+                  Spacer(flex: 2,),
+
+                  Padding(
+                    padding: const EdgeInsets.only(top: 30.0),
+                    child: Text('${currentVersion??''} ${buildNumber??''}',
+                      style: TextStyle(color: Colors.white, fontSize: 14.0, fontWeight: FontWeight.bold,),
+                    ),
+                  ),
+
+                  Spacer(flex: 1,),
+
+                ],
+              ),
             ),
           );
         }
