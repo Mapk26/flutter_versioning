@@ -27,7 +27,10 @@ class Maintenance extends StatelessWidget {
 
     if(statusUnknown){
 
-      textBox = Text('Something has went wrong, please check your connection.');
+      textBox = Text('Si è verificato un errore,\ncontrolla lo stato della tua connessione', 
+        textAlign: TextAlign.center,
+        style: TextStyle(color: Colors.white,),
+      );
       icon = Icon(
         Icons.signal_cellular_connected_no_internet_4_bar,
         size: 90.0,

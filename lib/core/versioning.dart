@@ -5,6 +5,7 @@ import 'package:launch_review/launch_review.dart';
 import 'package:versioning/core/api_provider.dart';
 import 'package:versioning/core/base_options.dart';
 import 'package:versioning/core/maintenance_screen.dart';
+import 'package:versioning/core/time_checker.dart';
 import 'package:versioning/models/version_model.dart';
 import 'package:package_info/package_info.dart';
 
@@ -38,8 +39,7 @@ class Versioning extends StatefulWidget {
   _VersioningState createState() => _VersioningState();
 }
 
-class _VersioningState extends State<Versioning>
-    with WidgetsBindingObserver {
+class _VersioningState extends State<Versioning> with WidgetsBindingObserver {
 
   Future<versionStatus> _futureStatus;
   String appName = '';
@@ -80,19 +80,28 @@ class _VersioningState extends State<Versioning>
     versionStatus data = await _futureStatus;
 
     if(data!=null && data==versionStatus.shouldUpgrade){
+
+      if(!await VersioningTimeChecker.checkIfTime(firstTime: 1, secondTime: 7,))
+        return;
+
       showDialog(
         context: context,
+        barrierDismissible: false,
         builder: (context) => new AlertDialog(
           title: Text(widget.options.alertTitle),
           content: Text(widget.options.alertText),
           actions: <Widget>[
             new FlatButton(
               child: new Text(widget.options.alertButtonLater),
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () {
+                VersioningTimeChecker.setLastTime();
+                Navigator.of(context).pop();
+              } 
             ),
             new FlatButton(
               child: new Text(widget.options.alertButtonUpgrade),
               onPressed: () {
+                VersioningTimeChecker.reset();
                 LaunchReview.launch();
                 Navigator.of(context).pop();
               },
