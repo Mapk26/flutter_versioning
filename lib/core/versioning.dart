@@ -14,7 +14,8 @@ enum versionStatus {
   shouldUpgrade,
   mustUpgrade,
   upToDate,
-  unknown,
+  unknown, // network error
+  ignore // ignore the status and go ahead
 }
 
 class Versioning extends StatefulWidget {
@@ -45,17 +46,22 @@ class _VersioningState extends State<Versioning> with WidgetsBindingObserver {
   String appName = '';
   VersionModel version;
 
-  Future<versionStatus> _checkVersion() async {
+  Future<versionStatus> _checkVersion(bool force) async {
+
+    if(version!=null && !force) return versionStatus.ignore;
 
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     int buildNumber = int.parse(packageInfo.buildNumber);
     appName = packageInfo.appName;
 
-    version = await Api.getVersion(
-      projectName: widget.projectName,
-      projectId: widget.projectId,
-    );
-
+    if(version==null || force){
+      print('Versioning: calling Firebase...');
+      version = await Api.getVersion(
+        projectName: widget.projectName,
+        projectId: widget.projectId,
+      );
+    }
+      
     if(version==null){
       return versionStatus.unknown;
     }
@@ -79,7 +85,7 @@ class _VersioningState extends State<Versioning> with WidgetsBindingObserver {
 
     versionStatus data = await _futureStatus;
 
-    if(data!=null && data==versionStatus.shouldUpgrade){
+    if(data!=null && data!=versionStatus.ignore && data==versionStatus.shouldUpgrade){
 
       if(!await VersioningTimeChecker.checkIfTime(firstTime: 1, secondTime: 7,))
         return;
@@ -139,7 +145,7 @@ class _VersioningState extends State<Versioning> with WidgetsBindingObserver {
     super.didChangeDependencies();
 
     setState(() {
-      _futureStatus = _checkVersion();
+      _futureStatus = _checkVersion(false);
     });
 
     _showShouldUpgrade();
@@ -149,9 +155,10 @@ class _VersioningState extends State<Versioning> with WidgetsBindingObserver {
   /// check for the permission status again
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    print('App State resumed');
     if (state == AppLifecycleState.resumed) {
       setState(() {
-        _futureStatus = _checkVersion();
+        _futureStatus = _checkVersion(true);
       });
       _showShouldUpgrade();
     }
