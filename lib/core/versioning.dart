@@ -189,12 +189,12 @@ class _VersioningState extends State<Versioning> with WidgetsBindingObserver {
                   options: widget.options,
                   updateText: version.updateText ?? '',
                 );
-              case versionStatus.unknown:
-                return Maintenance(
-                  appName: appName,
-                  statusUnknown: true,
-                  options: widget.options,
-                );
+              case versionStatus.unknown: // ? in case of a connection error do now manage here
+                // return Maintenance(
+                //   appName: appName,
+                //   statusUnknown: true,
+                //   options: widget.options,
+                // );
               case versionStatus.shouldUpgrade:
               default:
                 return widget.child;
