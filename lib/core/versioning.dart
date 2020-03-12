@@ -25,6 +25,8 @@ class Versioning extends StatefulWidget {
   final Key key;
   final String projectId;
   final String projectName;
+  final String iosAppId;
+  final String androidAppId;
   final VersioningOptions options;
 
   Versioning({
@@ -34,6 +36,8 @@ class Versioning extends StatefulWidget {
     this.key,
     @required this.projectName,
     @required this.projectId,
+    this.iosAppId,
+    this.androidAppId
   }) : super(key: key);
 
   @override
@@ -108,7 +112,11 @@ class _VersioningState extends State<Versioning> with WidgetsBindingObserver {
               child: new Text(widget.options.alertButtonUpgrade),
               onPressed: () {
                 VersioningTimeChecker.reset();
-                LaunchReview.launch();
+                LaunchReview.launch(
+                  writeReview: false,
+                  iOSAppId: widget.iosAppId, 
+                  androidAppId: widget.androidAppId,
+                );
                 Navigator.of(context).pop();
               },
             ),
