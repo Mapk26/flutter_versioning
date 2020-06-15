@@ -74,6 +74,7 @@ class _VersioningState extends State<Versioning> with WidgetsBindingObserver {
       // Save values in sharedPreferences
       SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.setBool(_BLOCK_ENABLED, version.blockEnabled);
+      print('Versioning--> isblockEnabled: ${version.blockEnabled}',);
     }
 
     if(version.maintenanceMode){
