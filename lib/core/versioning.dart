@@ -2,6 +2,7 @@ library versioning;
 
 import 'package:flutter/material.dart';
 import 'package:launch_review/launch_review.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:versioning/core/api_provider.dart';
 import 'package:versioning/core/base_options.dart';
 import 'package:versioning/core/maintenance_screen.dart';
@@ -49,6 +50,7 @@ class _VersioningState extends State<Versioning> with WidgetsBindingObserver {
   Future<versionStatus> _futureStatus;
   String appName = '';
   VersionModel version;
+  static const String _BLOCK_ENABLED = '_versioning_block_enabled';
 
   Future<versionStatus> _checkVersion(bool force) async {
 
@@ -68,6 +70,10 @@ class _VersioningState extends State<Versioning> with WidgetsBindingObserver {
       
     if(version==null){
       return versionStatus.unknown;
+    }else{
+      // Save values in sharedPreferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setBool(_BLOCK_ENABLED, version.blockEnabled);
     }
 
     if(version.maintenanceMode){
