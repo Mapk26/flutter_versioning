@@ -24,7 +24,6 @@ class Api{
       );
 
       if(response.statusCode==200){
-        print(response.data.toString());
         return VersionModel.fromMap(response.data);
       }
       else if(response.statusCode==401){
