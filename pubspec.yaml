@@ -1,18 +1,20 @@
 name: versioning
 description: A Flutter package to check app version on startup. It requires a Firebase Database.
-version: 1.0.0
+version: 1.1.0
 homepage:
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: ">=2.6.0 <3.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  dio: ^3.0.8
-  package_info: ^0.4.0+6
+    
+  dio: ^3.0.10
+  package_info: ^0.4.3
   launch_review: ^2.0.0
-  shared_preferences: ^0.5.6+1
+  shared_preferences: ^0.5.10
+  #store_redirect: ^1.0.2
 
 dev_dependencies:
   flutter_test:

@@ -27,7 +27,7 @@ class Maintenance extends StatelessWidget {
 
     if(statusUnknown){
 
-      textBox = Text('Si è verificato un errore,\ncontrolla lo stato della tua connessione', 
+      textBox = Text('Error, please check your connection', 
         textAlign: TextAlign.center,
         style: TextStyle(color: Colors.white,),
       );

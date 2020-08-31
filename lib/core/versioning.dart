@@ -5,12 +5,12 @@ import 'package:launch_review/launch_review.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:versioning/core/api_provider.dart';
 import 'package:versioning/core/base_options.dart';
-import 'package:versioning/core/maintenance_screen.dart';
+import 'package:versioning/screens/maintenance_screen.dart';
 import 'package:versioning/core/time_checker.dart';
 import 'package:versioning/models/version_model.dart';
 import 'package:package_info/package_info.dart';
 
-enum versionStatus {
+enum VersionStatus {
   maintenance,
   shouldUpgrade,
   mustUpgrade,
@@ -29,6 +29,9 @@ class Versioning extends StatefulWidget {
   final String iosAppId;
   final String androidAppId;
   final VersioningOptions options;
+  final int firstRember;
+  final int secondRember;
+
 
   Versioning({
     @required this.options,
@@ -38,7 +41,9 @@ class Versioning extends StatefulWidget {
     @required this.projectName,
     @required this.projectId,
     this.iosAppId,
-    this.androidAppId
+    this.androidAppId,
+    this.firstRember = 1,
+    this.secondRember = 7,
   }) : super(key: key);
 
   @override
@@ -47,17 +52,20 @@ class Versioning extends StatefulWidget {
 
 class _VersioningState extends State<Versioning> with WidgetsBindingObserver {
 
-  Future<versionStatus> _futureStatus;
+  Future<VersionStatus> _futureStatus;
   String appName = '';
   VersionModel version;
+  PackageInfo packageInfo;
+  String currentVersion, buildNumber = '';
   static const String _BLOCK_ENABLED = '_versioning_block_enabled';
 
-  Future<versionStatus> _checkVersion(bool force) async {
+  Future<VersionStatus> _checkVersion(bool force) async {
 
-    if(version!=null && !force) return versionStatus.ignore;
+    if(version!=null && !force) return VersionStatus.ignore;
 
-    PackageInfo packageInfo = await PackageInfo.fromPlatform();
-    int buildNumber = int.parse(packageInfo.buildNumber);
+    if(packageInfo==null)
+      packageInfo = await PackageInfo.fromPlatform();
+    int buildNumber = int.tryParse(packageInfo.buildNumber);
     appName = packageInfo.appName;
 
     if(version==null || force){
@@ -69,7 +77,8 @@ class _VersioningState extends State<Versioning> with WidgetsBindingObserver {
     }
       
     if(version==null){
-      return versionStatus.unknown;
+      // Network error
+      return VersionStatus.unknown;
     }else{
       // Save values in sharedPreferences
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -78,27 +87,28 @@ class _VersioningState extends State<Versioning> with WidgetsBindingObserver {
     }
 
     if(version.maintenanceMode){
-      return versionStatus.maintenance;
+      return VersionStatus.maintenance;
     }
 
     if( version.lastBreakingChange>buildNumber ) {
-      print('breaking change');
-      return versionStatus.mustUpgrade;
+      print('Versioning--> breaking change');
+      return VersionStatus.mustUpgrade;
     }else if( version.buildNumber>buildNumber ) {
-      print('should upgrade');
-      return versionStatus.shouldUpgrade;
-    }else
-      return versionStatus.upToDate;
+      print('Versioning--> should upgrade');
+      return VersionStatus.shouldUpgrade;
+    }
+    
+    return VersionStatus.upToDate;
 
   }
 
   void _showShouldUpgrade() async {
 
-    versionStatus data = await _futureStatus;
+    VersionStatus status = await _futureStatus;
 
-    if(data!=null && data!=versionStatus.ignore && data==versionStatus.shouldUpgrade){
+    if(status!=null && status!=VersionStatus.ignore && status==VersionStatus.shouldUpgrade){
 
-      if(!await VersioningTimeChecker.checkIfTime(firstTime: 1, secondTime: 7,))
+      if(!await VersioningTimeChecker.checkIfTime(firstTime: widget.firstRember, secondTime: widget.secondRember,))
         return;
 
       showDialog(
@@ -134,13 +144,12 @@ class _VersioningState extends State<Versioning> with WidgetsBindingObserver {
 
   }
 
-  String currentVersion, buildNumber = '';
-
+  
   void initPlatform() async {
-    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    packageInfo = await PackageInfo.fromPlatform();
 
     setState(() {
-      currentVersion = 'Versione ${packageInfo.version}';
+      currentVersion = 'Version ${packageInfo.version}';
       buildNumber = '(${packageInfo.buildNumber})';
     });
   }
@@ -170,7 +179,6 @@ class _VersioningState extends State<Versioning> with WidgetsBindingObserver {
   /// check for the permission status again
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    print('App State resumed');
     if (state == AppLifecycleState.resumed) {
       setState(() {
         _futureStatus = _checkVersion(true);
@@ -186,31 +194,26 @@ class _VersioningState extends State<Versioning> with WidgetsBindingObserver {
 
     return FutureBuilder(
         future: _futureStatus,
-        builder: (context, AsyncSnapshot<versionStatus> snapshot){
+        builder: (context, AsyncSnapshot<VersionStatus> snapshot){
 
           if(snapshot.hasData){
 
             switch(snapshot.data){
-              case versionStatus.maintenance:
+              case VersionStatus.maintenance:
                 return Maintenance(
                   appName: appName,
                   options: widget.options,
                   maintenanceText: version.maintenanceText ?? '',
                 );
-              case versionStatus.mustUpgrade:
+              case VersionStatus.mustUpgrade:
                 return Maintenance(
                   appName: appName,
                   forceUpgrade: true,
                   options: widget.options,
                   updateText: version.updateText ?? '',
                 );
-              case versionStatus.unknown: // ? in case of a connection error do now manage here
-                // return Maintenance(
-                //   appName: appName,
-                //   statusUnknown: true,
-                //   options: widget.options,
-                // );
-              case versionStatus.shouldUpgrade:
+              case VersionStatus.unknown: // ? in case of a connection error do now manage here
+              case VersionStatus.shouldUpgrade:
               default:
                 return widget.child;
 
@@ -227,22 +230,23 @@ class _VersioningState extends State<Versioning> with WidgetsBindingObserver {
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
 
-                  Spacer(flex: 2,),
+                  const Spacer(flex: 2,),
 
-                  widget.options.logo!=null ? widget.options.logo : SizedBox(),
+                  if(widget.options.logo!=null)
+                    widget.options.logo,
 
                   widget.loader==null ? CircularProgressIndicator() : widget.loader,
 
-                  Spacer(flex: 2,),
+                  const Spacer(flex: 2,),
 
                   Padding(
                     padding: const EdgeInsets.only(top: 30.0),
                     child: Text('${currentVersion??''} ${buildNumber??''}',
-                      style: TextStyle(color: Colors.white, fontSize: 14.0, fontWeight: FontWeight.bold,),
+                      style: const TextStyle(color: Colors.white, fontSize: 14.0, fontWeight: FontWeight.bold,),
                     ),
                   ),
 
-                  Spacer(flex: 1,),
+                  const Spacer(flex: 1,),
 
                 ],
               ),
